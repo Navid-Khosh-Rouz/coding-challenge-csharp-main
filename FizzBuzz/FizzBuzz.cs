@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 /**
  *
@@ -20,20 +21,31 @@ namespace FizzBuzz
 {
     public class FizzBuzzEngine
     {
+        private FizzBuzzRule[] rules {get; set;}
+
+        public FizzBuzzEngine()
+        {
+            this.rules = new FizzBuzzRule[]{};
+        }
+
+        public FizzBuzzEngine(FizzBuzzRule[] r)
+        {
+            this.rules = r;
+        }
+
         public void Run(int limit = 100)
         {
             for (int i = 1; i <= limit; i++)
             {
                 string output = "";
-                if (i % 3 == 0)
+                foreach (FizzBuzzRule rule in this.rules)
                 {
-                    output += "Fizz";
+                    if (rule.op(i))
+                    {
+                        output += rule.output;
+                    }
                 }
-                
-                if (i % 5 == 0)
-                {
-                    output += "Buzz";
-                }
+
 
                 if (string.IsNullOrEmpty(output))
                 {
@@ -44,12 +56,35 @@ namespace FizzBuzz
             }
         }
     }
+
+    public class FizzBuzzRule
+    {
+        public Func<int, bool> op {get; set;}
+        public string output {get; set;}
+    }
     
     public class Program
     {
         public static void Main(string[] args)
         {
-            FizzBuzzEngine engine = new FizzBuzzEngine();
+            var fizz = new FizzBuzzRule();
+            fizz.op = x => x % 3 == 0;
+            fizz.output = "Fizz";
+
+            var buzz = new FizzBuzzRule();
+            buzz.op = x => x % 5 == 0;
+            buzz.output = "Buzz";
+
+            var bar = new FizzBuzzRule();
+            bar.op = x => x % 7 == 0;
+            bar.output = "Bar";
+
+            var foo = new FizzBuzzRule();
+            foo.op = x => (x * 10) > 100;
+            foo.output = "Foo";
+
+            var rulez = new FizzBuzzRule[]{ fizz, buzz, bar, foo };
+            FizzBuzzEngine engine = new FizzBuzzEngine(rulez);
             engine.Run();
         }
     }
