@@ -19,27 +19,23 @@ namespace Pyramid
     {
         private static void Pyramid(int height)
         {
+            /* 
+            We need only one loop to produce the desired output
+            */
             var width = (height * 2) - 1;
             foreach (var i in Enumerable.Range(0, height))
             {
-                var row = "";
+                // to crate each row:
+                /* 
+                Creating a string which starts with the padding as spaces
+                and then we will add the correct number of * that we need to
+                each row. => instead of applying three more loops inside the main
+                loop.
+                 */
+                var row = (i + 1) + ". ";
                 var padding = height - i - 1;
-                
-                foreach (var _ in Enumerable.Range(0, padding))
-                {
-                    row += " ";
-                }
-
-                foreach (var _ in Enumerable.Range(0, width - padding * 2))
-                {
-                    row += "*";
-                }
-
-                foreach (var _ in Enumerable.Range(0, padding))
-                {
-                    row += " ";
-                }
-
+                row += new string(' ', padding);
+                row += new string('*', width - padding * 2);
                 Console.WriteLine(row);
             }
         }

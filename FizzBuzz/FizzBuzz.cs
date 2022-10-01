@@ -1,91 +1,152 @@
 ﻿using System;
 using System.Collections.Generic;
 
-/**
- *
- * Given is the following FizzBuzz application which counts from 1 to 100 and outputs either the corresponding
- * number or the corresponding text if one of the following rules apply.
- * Rules:
- *  - dividable by 3 without a remainder -> Fizz
- *  - dividable by 5 without a remainder -> Buzz
- *  - dividable by 3 and 5 without a remainder -> FizzBuzz
- *
- * ACCEPTANCE CRITERIA:
- * Please refactor this code so that it can be easily extended in the future with other rules, such as
- * "if it is dividable by 7 without a remainder output Bar"
- * "if multiplied by 10 is larger than 100 output Foo"
- *
- */
-
-namespace FizzBuzz
+namespace FizzBuzzSolver
 {
-    public class FizzBuzzEngine
+    class Program
     {
-        private FizzBuzzRule[] rules {get; set;}
+        static void Main(string[] args)
+        {
+            FizzBuzzEngine engine = new FizzBuzzEngine();
+            engine.Run();
+        }
+    }
+
+    // Equivalent to component in decoration pattern
+    class FizzBuzzEngine
+    {
+        private IFizzBuzzSolver _solver { get; set; }
 
         public FizzBuzzEngine()
         {
-            this.rules = new FizzBuzzRule[]{};
-        }
-
-        public FizzBuzzEngine(FizzBuzzRule[] r)
-        {
-            this.rules = r;
+            this._solver =
+                new FizzDecorator(
+                new BuzzDecorator(
+                new BarDecorator(
+                new FooDecorator(
+                new FizzBuzz()
+                ))));
         }
 
         public void Run(int limit = 100)
         {
-            for (int i = 1; i <= limit; i++)
+            Console.WriteLine("Solving FizzBuzz problem by using Decorator pattern.");
+            Console.WriteLine("Feel free to add other rules on runtime.");
+            Console.WriteLine("Default limitation is 100.");
+
+            for (int i = 1; i < limit + 1; i++)
             {
-                string output = "";
-                foreach (FizzBuzzRule rule in this.rules)
-                {
-                    if (rule.op(i))
-                    {
-                        output += rule.output;
-                    }
-                }
-
-
-                if (string.IsNullOrEmpty(output))
-                {
-                    output = i.ToString();
-                }
-                
-                Console.WriteLine("{0}: {1}", i, output);
+                Console.WriteLine(_solver.solve(i));
             }
         }
     }
 
-    public class FizzBuzzRule
+    // The base interface defines operations
+    interface IFizzBuzzSolver
     {
-        public Func<int, bool> op {get; set;}
-        public string output {get; set;}
+        string solve(int number, string output = "");
     }
-    
-    public class Program
+
+    // the default value to solve
+    // concrete (component) implementation
+    class FizzBuzz : IFizzBuzzSolver
     {
-        public static void Main(string[] args)
+        public string solve(int number, string output = "")
         {
-            var fizz = new FizzBuzzRule();
-            fizz.op = x => x % 3 == 0;
-            fizz.output = "Fizz";
+            if (output == "")
+            {
+                output = number.ToString();
+            }
 
-            var buzz = new FizzBuzzRule();
-            buzz.op = x => x % 5 == 0;
-            buzz.output = "Buzz";
-
-            var bar = new FizzBuzzRule();
-            bar.op = x => x % 7 == 0;
-            bar.output = "Bar";
-
-            var foo = new FizzBuzzRule();
-            foo.op = x => (x * 10) > 100;
-            foo.output = "Foo";
-
-            var rulez = new FizzBuzzRule[]{ fizz, buzz, bar, foo };
-            FizzBuzzEngine engine = new FizzBuzzEngine(rulez);
-            engine.Run();
+            return number.ToString() + " : " + output;
         }
     }
+
+    // base decorator to solve the problem
+    class BaseFizzBuzzDecorator : IFizzBuzzSolver
+    {
+        private IFizzBuzzSolver _fizzBuzzSolver;
+
+        // injecting as interface, so we can make that this class won't change in future
+        public BaseFizzBuzzDecorator(IFizzBuzzSolver fizzBuzzSolver)
+        {
+            _fizzBuzzSolver = fizzBuzzSolver;
+        }
+
+        // having the 'solve' function as virtual => so it can be overridden by other concrete decorators
+        public virtual string solve(int number, string output)
+        {
+            return _fizzBuzzSolver.solve(number, output);
+        }
+    }
+
+    /* 
+    ****************
+    concrete decorators
+    ****************
+    */
+    // concrete decorators => check if is dividable by 3 (Fizz)
+    class FizzDecorator : BaseFizzBuzzDecorator
+    {
+        public FizzDecorator(IFizzBuzzSolver fizzBuzzSolver) : base(fizzBuzzSolver) { }
+
+        public override string solve(int number, string output)
+        {
+            if (number % 3 == 0)
+            {
+                output += "Fizz";
+            }
+
+            return base.solve(number, output);
+        }
+    }
+
+    // concrete decorators => check if is dividable by 5 (Buzz)
+    class BuzzDecorator : BaseFizzBuzzDecorator
+    {
+        public BuzzDecorator(IFizzBuzzSolver fizzBuzzSolver) : base(fizzBuzzSolver) { }
+
+        public override string solve(int number, string output)
+        {
+            if (number % 5 == 0)
+            {
+                output += "Buzz";
+            }
+
+            return base.solve(number, output);
+        }
+    }
+
+    // concrete decorators => check if is dividable by 7 (Bar) 
+    class BarDecorator : BaseFizzBuzzDecorator
+    {
+        public BarDecorator(IFizzBuzzSolver fizzBuzzSolver) : base(fizzBuzzSolver) { }
+
+        public override string solve(int number, string output)
+        {
+            if (number % 7 == 0)
+            {
+                output += "Bar";
+            }
+
+            return base.solve(number, output);
+        }
+    }
+
+    // concrete decorators => check multiplied by 10 is larger than 100 (Foo) 
+    class FooDecorator : BaseFizzBuzzDecorator
+    {
+        public FooDecorator(IFizzBuzzSolver fizzBuzzSolver) : base(fizzBuzzSolver) { }
+
+        public override string solve(int number, string output)
+        {
+            if (number * 10 > 100)
+            {
+                output += "Foo";
+            }
+
+            return base.solve(number, output);
+        }
+    }
+
 }
