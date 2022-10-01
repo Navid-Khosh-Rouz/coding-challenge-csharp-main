@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 
 /*
  
@@ -9,8 +10,13 @@ using System.Linq;
  *******
 *********
 
-ACCEPTANCE CRITERIA:
-Write a script to output this pyramid on console (with leading spaces)
+Consider the input as 100:
+
+Before optimization: 
+Time taken: 2,9879ms
+--------------------
+After optimization: 
+Time taken: 0,1352ms
 
 */
 namespace Pyramid
@@ -19,6 +25,9 @@ namespace Pyramid
     {
         private static void Pyramid(int height)
         {
+            // uncomment to see the taken time 
+            // var watch = System.Diagnostics.Stopwatch.StartNew();
+
             /* 
             We need only one loop to produce the desired output
             */
@@ -32,17 +41,25 @@ namespace Pyramid
                 each row. => instead of applying three more loops inside the main
                 loop.
                  */
-                var row = (i + 1) + ". ";
+
+                // Due to the c# documentation, StringBuilder is more efficient to merge strings
+                var row = new StringBuilder((i + 1) + ". ");
                 var padding = height - i - 1;
-                row += new string(' ', padding);
-                row += new string('*', width - padding * 2);
+                row.Append(new string(' ', padding));
+                row.Append(new string('*', width - padding * 2));
                 Console.WriteLine(row);
             }
+
+            // uncomment to see the taken time 
+            // the code that you want to measure comes here
+            /* var elapsedMs = watch.Elapsed.TotalMilliseconds;
+            watch.Stop(); 
+            Console.WriteLine("Time taken: {0}ms", elapsedMs);*/
         }
-        
+
         public static void Main(string[] args)
         {
-            Pyramid(5);
+            Pyramid(100);
         }
     }
 }
