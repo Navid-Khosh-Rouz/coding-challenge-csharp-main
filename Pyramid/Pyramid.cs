@@ -59,7 +59,7 @@ namespace Pyramid
 
         public static void Main(string[] args)
         {
-            Pyramid(100);
+            Pyramid(5);
         }
     }
 }
